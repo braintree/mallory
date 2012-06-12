@@ -39,7 +39,7 @@ describe Mallory::Proxy do
       Mallory.ca_file = File.expand_path("../ssl/ca-certificates.crt", File.dirname(__FILE__))
 
       post "/foo"
-      last_response.body.should == "POST: /foo"
+      last_response.body.should == "POST: /foo  "
       last_response.status.should == 200
     end
   end
@@ -48,31 +48,47 @@ describe Mallory::Proxy do
     it "POST proxies the traffic to the backend server" do
       post "/foo"
 
-      last_response.body.should == "POST: /foo"
+      last_response.body.should == "POST: /foo  "
       last_response.status.should == 200
     end
 
     it "GET proxies the traffic to the backend server" do
       get "/foo"
 
-      last_response.body.should == "GET: /foo"
+      last_response.body.should == "GET: /foo  "
       last_response.status.should == 200
     end
 
     it "PUT proxies the traffic to the backend server" do
+      EM.stop
       pending "WEBrick does not support put"
       put "/foo"
 
-      last_response.body.should == "PUT: /foo"
+      last_response.body.should == "PUT: /foo  "
       last_response.status.should == 200
     end
 
     it "DELETE proxies the traffic to the backend server" do
+      EM.stop
       pending "WEBrick does not support delete"
       delete "/foo"
 
-      last_response.body.should == "DELETE: /foo"
+      last_response.body.should == "DELETE: /foo  "
       last_response.status.should == 200
     end
+  end
+
+  it "passes along query params" do
+    post "/query?a=b&c=d"
+
+    last_response.body.should == "POST: /query a=b&c=d "
+    last_response.status.should == 200
+  end
+
+  it "passes along post body" do
+    post "/body", "<xml>foo</xml>"
+
+    last_response.body.should == "POST: /body  <xml>foo</xml>"
+    last_response.status.should == 200
   end
 end
