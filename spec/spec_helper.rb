@@ -10,3 +10,14 @@ RSpec.configure do |config|
   config.expect_with :rspec
   config.include Rack::Test::Methods
 end
+
+def run_in_reactor(timeout = 5)
+  around(:each) do |spec|
+    EM.synchrony do
+      sig = EM.add_timer(timeout) { fail "timeout!"; EM.stop }
+      spec.run
+      EM.cancel_timer(sig)
+      EM.stop
+    end
+  end
+end
