@@ -23,6 +23,13 @@ s = WEBrick::HTTPServer.new(
   :SSLCertName => [ [ "CN",WEBrick::Utils::getservername ] ],
   :StartCallback => proc { File.open(pid_file, "w") { |f| f.write $$.to_s }}
 )
-s.mount_proc("/") { |req,resp| resp.body = "#{req.request_method}: #{req.path} #{req.query_string} #{req.body}" }
+s.mount_proc("/") do |req,resp|
+  resp.body =  "#{req.request_method}: #{req.path}\n"
+  resp.body += "QUERY: #{req.query_string}\n"
+  resp.body += "POST BODY: #{req.body}\n"
+  req.header.each do |key, value|
+    resp.body += "#{key}: #{value.first}\n"
+  end
+end
 trap("INT"){ s.shutdown }
 s.start
