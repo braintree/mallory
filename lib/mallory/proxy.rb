@@ -4,6 +4,18 @@ module Mallory
       _proxy_request(:post, env["PATH_INFO"])
     end
 
+    get "/*" do
+      _proxy_request(:get, env["PATH_INFO"])
+    end
+
+    put "/*" do
+      _proxy_request(:put, env["PATH_INFO"])
+    end
+
+    delete "/*" do
+      _proxy_request(:delete, env["PATH_INFO"])
+    end
+
     def _proxy_request(http_method, path)
       uri = URI.join(Mallory.target, path)
       request_options = {}

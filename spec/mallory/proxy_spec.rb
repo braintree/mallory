@@ -15,19 +15,12 @@ describe Mallory::Proxy do
     TestServer.stop
   end
 
-  describe "POST /foo" do
-    before(:each) do
-      Mallory.target = "https://127.0.0.1:9294"
-      Mallory.ca_file = File.expand_path("../ssl/server.crt", File.dirname(__FILE__))
-    end
+  before(:each) do
+    Mallory.target = "https://127.0.0.1:9294"
+    Mallory.ca_file = File.expand_path("../ssl/server.crt", File.dirname(__FILE__))
+  end
 
-    it "proxies the traffic to the backend server" do
-      post "/foo"
-
-      last_response.body.should == "POST: /foo"
-      last_response.status.should == 200
-    end
-
+  describe "SSL verification" do
     it "returns a 503 when the SSL cert does not verify" do
       Mallory.ca_file = File.expand_path("../ssl/badguy.crt", File.dirname(__FILE__))
 
@@ -47,6 +40,38 @@ describe Mallory::Proxy do
 
       post "/foo"
       last_response.body.should == "POST: /foo"
+      last_response.status.should == 200
+    end
+  end
+
+  describe "HTTP verbs" do
+    it "POST proxies the traffic to the backend server" do
+      post "/foo"
+
+      last_response.body.should == "POST: /foo"
+      last_response.status.should == 200
+    end
+
+    it "GET proxies the traffic to the backend server" do
+      get "/foo"
+
+      last_response.body.should == "GET: /foo"
+      last_response.status.should == 200
+    end
+
+    it "PUT proxies the traffic to the backend server" do
+      pending "WEBrick does not support put"
+      put "/foo"
+
+      last_response.body.should == "PUT: /foo"
+      last_response.status.should == 200
+    end
+
+    it "DELETE proxies the traffic to the backend server" do
+      pending "WEBrick does not support delete"
+      delete "/foo"
+
+      last_response.body.should == "DELETE: /foo"
       last_response.status.should == 200
     end
   end
