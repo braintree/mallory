@@ -7,10 +7,11 @@ module Mallory
     def _proxy_request(http_method, path)
       uri = URI.join(Mallory.target, path)
       request_options = {}
-      request_options[:ssl] = {:verify_peer => true, :cert_chain_file => Mallory.ca_file} if uri.scheme == "https"
+      request_options[:tls] = {:verify_peer => true, :cert_chain_file => Mallory.ca_file} if uri.scheme == "https"
 
-      response = EM::HttpRequest.new(uri).send(http_method, request_options)
-      response.response
+      response = EM::HttpRequest.new(uri, request_options).send(http_method)
+      status = response.state == :finished ? response.response_header.status : 503
+      [status, response.response_header, response.response]
     end
   end
 end
