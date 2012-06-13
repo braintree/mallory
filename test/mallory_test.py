@@ -18,11 +18,11 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         echo_app = tornado.web.Application([
             (r"/", test.EchoRequestHandler)
         ])
-        self.echo_http_server = tornado.httpserver.HTTPServer(echo_app)
+        self.echo_http_server = tornado.httpserver.HTTPServer(echo_app, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         self.echo_http_server.listen(10000, address="127.0.0.1")
 
         mallory_app = tornado.web.Application([
-            (r"/", mallory.RequestHandler, dict(proxy_to = "http://127.0.0.1:10000"))
+            (r"/", mallory.RequestHandler, dict(proxy_to = "https://127.0.0.1:10000", ca_file = "test/ssl/server.crt"))
         ])
         self.mallory_http_server = tornado.httpserver.HTTPServer(mallory_app, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         self.mallory_http_server.listen(10001, address="127.0.0.1")
