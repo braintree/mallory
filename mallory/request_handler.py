@@ -18,37 +18,41 @@ class RequestHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def handle_request(self):
         try:
-            uri = urlparse.urlunparse([self.proxy_to.scheme, self.proxy_to.netloc, self.request.path, None, self.request.query, None])
+            request = self._build_request()
 
-            passed_headers = self.request.headers.copy()
-            del passed_headers['Host']
-
-            if self.request.method == "GET":
-                body = None
-            else:
-                body = self.request.body
-
-            outbound_request = tornado.httpclient.HTTPRequest(
-                uri,
-                ca_certs = self.ca_file,
-                method = self.request.method,
-                headers = passed_headers,
-                body = body
-            )
             http_client = tornado.httpclient.AsyncHTTPClient(io_loop=tornado.ioloop.IOLoop.instance())
+            response = yield tornado.gen.Task(http_client.fetch, request)
 
-            response = yield tornado.gen.Task(http_client.fetch, outbound_request)
-
-            message = response.body
-            self.set_status(response.code)
-            print len(message)
-            for header, value in response.headers.iteritems():
-                self.set_header(header, value)
-
-            self.write(message)
-            self.finish()
-
+            self._send_response(response)
         except Exception as e:
             print "Unexpected error:", e
+
+    def _build_request(self):
+        uri = urlparse.urlunparse([self.proxy_to.scheme, self.proxy_to.netloc, self.request.path, None, self.request.query, None])
+
+        headers = self.request.headers.copy()
+        del headers['Host']
+
+        if self.request.method == "GET":
+            body = None
+        else:
+            body = self.request.body
+
+        request = tornado.httpclient.HTTPRequest(
+            uri,
+            ca_certs = self.ca_file,
+            method = self.request.method,
+            headers = headers,
+            body = body
+        )
+        return request
+
+    def _send_response(self, response):
+        message = response.body
+        self.set_status(response.code)
+        for header, value in response.headers.iteritems():
+            self.set_header(header, value)
+        self.write(message)
+        self.finish()
 
     get = post = put = delete = handle_request
