@@ -22,7 +22,7 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.echo_http_server.listen(10000, address="127.0.0.1")
 
         mallory_app = tornado.web.Application([
-            (r"/", mallory.RequestHandler)
+            (r"/", mallory.RequestHandler, dict(proxy_to = "http://127.0.0.1:10000"))
         ])
         self.mallory_http_server = tornado.httpserver.HTTPServer(mallory_app, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         self.mallory_http_server.listen(10001, address="127.0.0.1")
@@ -30,6 +30,7 @@ class MalloryTest(tornado.testing.AsyncTestCase):
     def tearDown(self):
         super(MalloryTest, self).tearDown()
         self.echo_http_server.stop()
+        self.mallory_http_server.stop()
 
     def get_app(self):
         app = tornado.web.Application([
