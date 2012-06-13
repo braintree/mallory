@@ -65,3 +65,7 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         response = self.wait()
         self.assertEqual(201, response.code)
 
+    def test_http_headers_are_passed_along(self):
+        self.http_client.fetch(self.get_url("/http_status/201"), self.stop, ca_certs = "test/ssl/server.crt", headers = { "X-Something": "bar" })
+        response = self.wait()
+        self.assertTrue(response.body.find("X-Something: bar") >= 0, response.body)
