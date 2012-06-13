@@ -60,8 +60,6 @@ describe Mallory::Proxy do
     end
 
     it "PUT proxies the traffic to the backend server" do
-      EM.stop
-      pending "WEBrick does not support put"
       put "/foo"
 
       last_response.body.should match("PUT: /foo")
@@ -69,8 +67,6 @@ describe Mallory::Proxy do
     end
 
     it "DELETE proxies the traffic to the backend server" do
-      EM.stop
-      pending "WEBrick does not support delete"
       delete "/foo"
 
       last_response.body.should match("DELETE: /foo")
@@ -95,8 +91,8 @@ describe Mallory::Proxy do
   it "passes along headers" do
     post "/body", "<xml>foo</xml>", "HTTP_X_HEADER" => "foo", "CONTENT_TYPE" => "text/xml"
 
-    last_response.body.should match("x_header: foo")
-    last_response.body.should match("content_type: text/xml")
+    last_response.body.should match("X_HEADER: foo")
+    last_response.body.should match("CONTENT_TYPE: text/xml")
     last_response.status.should == 200
   end
 end

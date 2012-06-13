@@ -1,12 +1,23 @@
 class TestServer
   def self.start(port)
-    server_start = system "env PID_FILE=/tmp/echo.pid SSL_TEST_PORT=#{port} spec/script/https_echo_server"
-    raise "failed to start server" unless server_start
+    options = [
+      "--rackup spec/support/echo.ru",
+      "--ssl",
+      "--ssl-key-file spec/ssl/server.key",
+      "--ssl-cert-file spec/ssl/server.crt",
+      "--port #{port}",
+      "--daemonize",
+      "--pid /tmp/echo.pid",
+      "--log /dev/null",
+      "start"
+    ]
+
+    raise "failed to start server" unless system "bundle exec thin #{options.join(' ')}"
     wait_for_service :host => '127.0.0.1', :port => port
   end
 
   def self.stop
-    system "kill -9 `cat /tmp/echo.pid`"
+    system "bundle exec thin --pid /tmp/echo.pid stop 2>&1 > /dev/null"
   end
 
   def self.wait_for_service(options = {})

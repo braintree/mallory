@@ -32,7 +32,8 @@ module Mallory
       request_options[:body] = body unless body.nil?
 
       response = EM::HttpRequest.new(uri, connect_options).send(http_method, request_options)
-      status = response.state == :finished ? response.response_header.status : 503
+
+      status = response.finished? ? response.response_header.status : 503
       [status, response.response_header, response.response]
     end
   end
