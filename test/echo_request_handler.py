@@ -21,6 +21,11 @@ class EchoRequestHandler(tornado.web.RequestHandler):
 
             self.set_status(status)
             self.set_header('Content-Length', len(message))
+
+            if self.request.path.find("/http_header") == 0:
+                match = re.search("/http_header/(.+)/(.+)", self.request.path)
+                self.set_header(match.group(1), match.group(2))
+
             self.write(message)
             self.finish()
 
