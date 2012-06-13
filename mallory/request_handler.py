@@ -17,9 +17,9 @@ class RequestHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def get(self):
         try:
-            print "proxying to %s with %s" % (self.proxy_to, self.ca_file)
+            print "proxying to %s with %s path %s" % (self.proxy_to, self.ca_file, self.request.path)
             outbound_request = tornado.httpclient.HTTPRequest(
-                self.proxy_to,
+                "%s%s" % (self.proxy_to, self.request.path),
                 ca_certs = self.ca_file,
                 method="GET"
             )
@@ -29,7 +29,7 @@ class RequestHandler(tornado.web.RequestHandler):
             response = yield tornado.gen.Task(http_client.fetch, outbound_request)
             print response
 
-            message = "You requested %s\n" % "hi"
+            message = response.body
             self.write("HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s" % (len(message), message))
             self.finish()
 
