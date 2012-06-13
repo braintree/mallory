@@ -16,13 +16,13 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.http_client = tornado.httpclient.AsyncHTTPClient()
 
         echo_app = tornado.web.Application([
-            (r"/", test.EchoRequestHandler)
+            (r"/.*", test.EchoRequestHandler)
         ])
         self.echo_http_server = tornado.httpserver.HTTPServer(echo_app, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         self.echo_http_server.listen(10000, address="127.0.0.1")
 
         mallory_app = tornado.web.Application([
-            (r"/", mallory.RequestHandler, dict(proxy_to = "https://127.0.0.1:10000", ca_file = "test/ssl/server.crt"))
+            (r"/.*", mallory.RequestHandler, dict(proxy_to = "https://127.0.0.1:10000", ca_file = "test/ssl/server.crt"))
         ])
         self.mallory_http_server = tornado.httpserver.HTTPServer(mallory_app, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         self.mallory_http_server.listen(10001, address="127.0.0.1")
@@ -45,18 +45,13 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         """Returns an absolute url for the given path on the test server."""
         return 'https://127.0.0.1:%s%s' % (10001, path)
 
-    def test_something(self):
-        #self.assertEqual(1, 2)
-        #http_client = tornado.httpclient.AsyncHTTPClient(io_loop = self.io_loop)
-        #outbound_request = tornado.httpclient.HTTPRequest(
-        #    "http://127.0.0.1:8888",
-        #    method="GET"
-        #)
-        print self.get_url("/")
+    def test_a_200_response_on_hitting_the_root_url(self):
         self.http_client.fetch(self.get_url("/"), self.stop, ca_certs = "test/ssl/server.crt")
         response = self.wait()
-        #self.assertEqual(1, 2)
-        #response = yield tornado.gen.Task(http_client.fetch, outbound_request)
-        print response
+        self.assertEqual(200, response.code)
+
+    def test_path_is_proxied(self):
+        self.http_client.fetch(self.get_url("/the/path/to/hit"), self.stop, ca_certs = "test/ssl/server.crt")
+        response = self.wait()
         print response.body
-        self.assertEqual(1, 2)
+        self.assertTrue(response.body.find("PATH: /the/path/to/hit") >= 0)
