@@ -1,5 +1,9 @@
 module Mallory
   class Proxy < Sinatra::Base
+    register Sinatra::Synchrony
+    set :dump_errors, true
+    set :raise_errors, false
+
     post "/*" do
       _proxy_request(:post, env["PATH_INFO"], env["QUERY_STRING"], env["rack.request.form_vars"])
     end

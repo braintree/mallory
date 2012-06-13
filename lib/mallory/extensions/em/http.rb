@@ -19,7 +19,7 @@ module VerifySSL
   def ssl_verify_peer(peer_cert)
     key = OpenSSL::X509::Certificate.new(peer_cert)
     store = OpenSSL::X509::Store.new
-    store.add_file(@connopts.tls[:cert_chain_file])
+    store.add_file(File.expand_path(@connopts.tls[:cert_chain_file]))
     store.verify(key) && OpenSSL::SSL.verify_certificate_identity(key, @connopts.host)
   end
 

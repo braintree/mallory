@@ -1,0 +1,6 @@
+#! /usr/bin/env ruby
+
+require 'mallory'
+require 'mallory/cli'
+
+Mallory::CLI.new.start
