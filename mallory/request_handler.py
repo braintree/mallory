@@ -12,7 +12,6 @@ class RequestHandler(tornado.web.RequestHandler):
     def initialize(self, proxy_to, ca_file):
         self.proxy_to = urlparse.urlparse(proxy_to)
         self.ca_file = ca_file
-        print "proxying to %s with %s" % (proxy_to, ca_file)
 
     @tornado.web.asynchronous
     @tornado.gen.engine
