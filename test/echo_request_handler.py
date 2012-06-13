@@ -10,6 +10,8 @@ class EchoRequestHandler(tornado.web.RequestHandler):
         try:
             message = "PATH: %s\n" % self.request.path
             message += "QUERY STRING: %s\n" % self.request.query
+            message += "METHOD: %s\n" % self.request.method
+            message += "BODY: %s\n" % self.request.body
 
             for key, value in self.request.headers.iteritems():
                 message += "%s: %s\n" % (key, value)
@@ -32,4 +34,7 @@ class EchoRequestHandler(tornado.web.RequestHandler):
         except Exception as e:
             print "Unexpected error:", e
 
-
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def post(self):
+        self.get()
