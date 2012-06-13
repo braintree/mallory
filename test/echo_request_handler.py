@@ -1,19 +1,24 @@
 import tornado
 import tornado.web
 import tornado.gen
+import re
 
 class EchoRequestHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def get(self):
         try:
-            # todo: request method, path_info, query_string, post body
             message = "PATH: %s\n" % self.request.path
             message += "QUERY STRING: %s\n" % self.request.query
-            #for key in request.headers:
-            #    message += ("%s: %s" % [key, request.headers[key]])
 
-            self.write("HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s" % (len(message), message))
+            if self.request.path.find("/http_status") == 0:
+                status = int(re.search("/http_status/(\d+)", self.request.path).group(1))
+            else:
+                status = 200
+
+            self.set_status(status)
+            self.set_header('Content-Length', len(message))
+            self.write(message)
             self.finish()
 
         except Exception as e:

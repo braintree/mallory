@@ -29,7 +29,9 @@ class RequestHandler(tornado.web.RequestHandler):
             response = yield tornado.gen.Task(http_client.fetch, outbound_request)
 
             message = response.body
-            self.write("HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s" % (len(message), message))
+            self.set_status(response.code)
+            self.set_header('Content-Length', len(message))
+            self.write(message)
             self.finish()
 
         except Exception as e:

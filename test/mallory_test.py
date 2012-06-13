@@ -53,11 +53,15 @@ class MalloryTest(tornado.testing.AsyncTestCase):
     def test_path_is_proxied(self):
         self.http_client.fetch(self.get_url("/the/path/to/hit"), self.stop, ca_certs = "test/ssl/server.crt")
         response = self.wait()
-        print response.body
         self.assertTrue(response.body.find("PATH: /the/path/to/hit") >= 0)
 
     def test_query_params_are_proxied(self):
         self.http_client.fetch(self.get_url("/path?param1=value1&param2=value2"), self.stop, ca_certs = "test/ssl/server.crt")
         response = self.wait()
-        print response.body
         self.assertTrue(response.body.find("QUERY STRING: param1=value1&param2=value2") >= 0)
+
+    def test_http_status_code_is_returned_in_the_response(self):
+        self.http_client.fetch(self.get_url("/http_status/201"), self.stop, ca_certs = "test/ssl/server.crt")
+        response = self.wait()
+        self.assertEqual(201, response.code)
+
