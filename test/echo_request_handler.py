@@ -9,6 +9,7 @@ class EchoRequestHandler(tornado.web.RequestHandler):
         try:
             # todo: request method, path_info, query_string, post body
             message = "PATH: %s\n" % self.request.path
+            message += "QUERY STRING: %s\n" % self.request.query
             #for key in request.headers:
             #    message += ("%s: %s" % [key, request.headers[key]])
 
