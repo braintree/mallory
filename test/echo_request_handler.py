@@ -11,6 +11,9 @@ class EchoRequestHandler(tornado.web.RequestHandler):
             message = "PATH: %s\n" % self.request.path
             message += "QUERY STRING: %s\n" % self.request.query
 
+            for key, value in self.request.headers.iteritems():
+                message += "%s: %s\n" % (key, value)
+
             if self.request.path.find("/http_status") == 0:
                 status = int(re.search("/http_status/(\d+)", self.request.path).group(1))
             else:

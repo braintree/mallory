@@ -22,7 +22,8 @@ class RequestHandler(tornado.web.RequestHandler):
             outbound_request = tornado.httpclient.HTTPRequest(
                 uri,
                 ca_certs = self.ca_file,
-                method="GET"
+                method = "GET",
+                headers = self.request.headers
             )
             http_client = tornado.httpclient.AsyncHTTPClient(io_loop=tornado.ioloop.IOLoop.instance())
 
