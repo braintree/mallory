@@ -1,0 +1,9 @@
+* logging
+* optparse
+* god
+* exception handling
+* pull up tornado.web.Application/HTTPServer so tests use same app/server as will be run in production
+* puts and deletes and heads?
+* load test
+* pid file?
+
