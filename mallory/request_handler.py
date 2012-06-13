@@ -19,11 +19,13 @@ class RequestHandler(tornado.web.RequestHandler):
     def get(self):
         try:
             uri = urlparse.urlunparse([self.proxy_to.scheme, self.proxy_to.netloc, self.request.path, None, self.request.query, None])
+            passed_headers = self.request.headers.copy()
+            del passed_headers['Host']
             outbound_request = tornado.httpclient.HTTPRequest(
                 uri,
                 ca_certs = self.ca_file,
                 method = "GET",
-                headers = self.request.headers
+                headers = passed_headers
             )
             http_client = tornado.httpclient.AsyncHTTPClient(io_loop=tornado.ioloop.IOLoop.instance())
 
@@ -32,6 +34,9 @@ class RequestHandler(tornado.web.RequestHandler):
             message = response.body
             self.set_status(response.code)
             self.set_header('Content-Length', len(message))
+            for header, value in response.headers.iteritems():
+                self.set_header(header, value)
+
             self.write(message)
             self.finish()
 
