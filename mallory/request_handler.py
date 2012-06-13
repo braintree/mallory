@@ -16,7 +16,7 @@ class RequestHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     @tornado.gen.engine
-    def get(self):
+    def get(self, method = "GET", body = None):
         try:
             uri = urlparse.urlunparse([self.proxy_to.scheme, self.proxy_to.netloc, self.request.path, None, self.request.query, None])
             passed_headers = self.request.headers.copy()
@@ -24,8 +24,9 @@ class RequestHandler(tornado.web.RequestHandler):
             outbound_request = tornado.httpclient.HTTPRequest(
                 uri,
                 ca_certs = self.ca_file,
-                method = "GET",
-                headers = passed_headers
+                method = method,
+                headers = passed_headers,
+                body = body
             )
             http_client = tornado.httpclient.AsyncHTTPClient(io_loop=tornado.ioloop.IOLoop.instance())
 
@@ -33,7 +34,7 @@ class RequestHandler(tornado.web.RequestHandler):
 
             message = response.body
             self.set_status(response.code)
-            self.set_header('Content-Length', len(message))
+            print len(message)
             for header, value in response.headers.iteritems():
                 self.set_header(header, value)
 
@@ -43,3 +44,7 @@ class RequestHandler(tornado.web.RequestHandler):
         except Exception as e:
             print "Unexpected error:", e
 
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def post(self):
+        self.get(method = "POST", body = self.request.body)
