@@ -17,9 +17,12 @@ class RequestHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def get(self):
         try:
-            print "proxying to %s with %s path %s" % (self.proxy_to, self.ca_file, self.request.path)
+            print "proxying to %s with %s path %s" % (self.proxy_to, self.ca_file, self.request.query)
+            uri = "%s%s" % (self.proxy_to, self.request.path)
+            if self.request.query:
+                uri += "?" + self.request.query
             outbound_request = tornado.httpclient.HTTPRequest(
-                "%s%s" % (self.proxy_to, self.request.path),
+                uri,
                 ca_certs = self.ca_file,
                 method="GET"
             )
