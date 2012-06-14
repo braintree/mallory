@@ -21,16 +21,13 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.echo_http_server = tornado.httpserver.HTTPServer(echo_app, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         self.echo_http_server.listen(10000, address="127.0.0.1")
 
-        mallory_app = tornado.web.Application([
-            (r"/.*", mallory.RequestHandler, dict(proxy_to = "https://127.0.0.1:10000", ca_file = "test/ssl/server.crt"))
-        ])
-        self.mallory_http_server = tornado.httpserver.HTTPServer(mallory_app, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
-        self.mallory_http_server.listen(10001, address="127.0.0.1")
+        self.mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10000", ca_file="test/ssl/server.crt", port=10001, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
+        self.mallory_server.start()
 
     def tearDown(self):
         super(MalloryTest, self).tearDown()
         self.echo_http_server.stop()
-        self.mallory_http_server.stop()
+        self.mallory_server.stop()
 
     def get_app(self):
         app = tornado.web.Application([
@@ -42,7 +39,6 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         return tornado.ioloop.IOLoop.instance()
 
     def get_url(self, path):
-        """Returns an absolute url for the given path on the test server."""
         return 'https://127.0.0.1:%s%s' % (10001, path)
 
     def test_a_200_response_on_hitting_the_root_url(self):
