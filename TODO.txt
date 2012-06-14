@@ -1,7 +1,6 @@
-* optparse
 * god
 * exception handling
 * puts and deletes and heads?
 * load test
-* pid file?
+* set the X- response header to indicate proxy
 

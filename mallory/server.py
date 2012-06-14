@@ -11,7 +11,7 @@ class Server:
         self.port = port
 
     def start(self):
-        self.http_server.listen(self.port, address="127.0.0.1")
+        self.http_server.listen(self.port, address="0.0.0.0")
 
     def stop(self):
         self.http_server.stop()
