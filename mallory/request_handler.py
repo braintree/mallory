@@ -1,4 +1,5 @@
 import logging
+import socket
 import tornado
 import tornado.gen
 import tornado.httpserver
@@ -58,6 +59,7 @@ class RequestHandler(tornado.web.RequestHandler):
 
         for header, value in headers.iteritems():
             self.set_header(header, value)
+        self.set_header("X-Proxy-Server", socket.gethostname())
         self.write(message)
         self.finish()
 

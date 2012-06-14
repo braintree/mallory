@@ -1,3 +1,4 @@
+import socket
 import sys
 import tornado
 import tornado.gen
@@ -82,3 +83,7 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.assertTrue(response.body.find("METHOD: POST") >= 0, response.body)
         self.assertTrue(response.body.find("BODY: the post body") >= 0, response.body)
 
+    def test_sets_x_proxy_server_in_response(self):
+        self.http_client.fetch(self.get_url("/"), self.stop, ca_certs = "test/ssl/server.crt")
+        response = self.wait()
+        self.assertEqual(socket.gethostname(), response.headers['X-Proxy-Server'])

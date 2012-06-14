@@ -2,5 +2,4 @@
 * exception handling
 * puts and deletes and heads?
 * load test
-* set the X- response header to indicate proxy
 
