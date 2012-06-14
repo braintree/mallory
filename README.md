@@ -24,8 +24,6 @@ Or install it yourself with:
       --verify-ca-cert /etc/ssl/certs/ca-certificates.crt \
       https://destination.example.com
 
-TODO: Write usage instructions here
-
 ## Contributing
 
 1. Fork it
