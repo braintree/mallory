@@ -103,3 +103,14 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.http_client.fetch(self.get_url("/"), self.stop, method = "HEAD", ca_certs = "test/ssl/server.crt")
         response = self.wait()
         self.assertEqual("HEAD", response.headers["X-Requested-Method"])
+
+    def test_error_handling(self):
+        mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10001", ca_file="test/ssl/badguy.crt", port=10002, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
+        mallory_server.start()
+
+        self.http_client.fetch("https://127.0.0.1:10002/", self.stop, method = "HEAD", ca_certs = "test/ssl/server.crt")
+        response = self.wait()
+
+        mallory_server.stop()
+
+        self.assertEqual(502, response.code)

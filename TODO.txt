@@ -1,5 +1,2 @@
-* god
-* exception handling
-* puts and deletes and heads?
 * load test
-
+* timeouts?

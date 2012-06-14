@@ -28,6 +28,7 @@ class RequestHandler(tornado.web.RequestHandler):
 
             self._send_response(response)
         except Exception as e:
+            self._send_error_response()
             logging.exception("Unexpected error:")
 
     def _build_request(self):
@@ -49,6 +50,11 @@ class RequestHandler(tornado.web.RequestHandler):
             body = body
         )
         return request
+
+    def _send_error_response(self):
+        self.set_status(502)
+        self.set_header("X-Proxy-Server", socket.gethostname())
+        self.finish()
 
     def _send_response(self, response):
         message = response.body
