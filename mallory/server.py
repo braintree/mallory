@@ -3,9 +3,9 @@ import tornado.httpserver
 import tornado.web
 
 class Server:
-    def __init__(self, proxy_to, ca_file, port, **httpserver_kwargs):
+    def __init__(self, proxy_to, ca_file, port, request_timeout, **httpserver_kwargs):
         app = tornado.web.Application([
-            (r"/.*", mallory.RequestHandler, dict(proxy_to=proxy_to, ca_file=ca_file))
+            (r"/.*", mallory.RequestHandler, dict(proxy_to=proxy_to, ca_file=ca_file, request_timeout=request_timeout))
         ])
         self.http_server = tornado.httpserver.HTTPServer(app, **httpserver_kwargs)
         self.port = port

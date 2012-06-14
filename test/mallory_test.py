@@ -22,7 +22,7 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.echo_http_server = tornado.httpserver.HTTPServer(echo_app, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         self.echo_http_server.listen(10000, address="127.0.0.1")
 
-        self.mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10000", ca_file="test/ssl/server.crt", port=10001, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
+        self.mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10000", ca_file="test/ssl/server.crt", port=10001, request_timeout=0.5,ssl_options={ "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         self.mallory_server.start()
 
     def tearDown(self):
@@ -105,7 +105,7 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.assertEqual("HEAD", response.headers["X-Requested-Method"])
 
     def test_error_handling(self):
-        mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10001", ca_file="test/ssl/badguy.crt", port=10002, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
+        mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10001", ca_file="test/ssl/badguy.crt", port=10002, request_timeout=5,ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         mallory_server.start()
 
         self.http_client.fetch("https://127.0.0.1:10002/", self.stop, method = "HEAD", ca_certs = "test/ssl/server.crt")
@@ -116,6 +116,6 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.assertEqual(502, response.code)
 
     def test_timeout(self):
-        self.http_client.fetch(self.get_url("/timeout"), self.stop, request_timeout=30, ca_certs = "test/ssl/server.crt")
-        response = self.wait(timeout = 55)
+        self.http_client.fetch(self.get_url("/timeout"), self.stop, request_timeout=3, ca_certs = "test/ssl/server.crt")
+        response = self.wait()
         self.assertEqual(502, response.code)
