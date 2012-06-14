@@ -3,11 +3,13 @@ from distutils.core import setup
 setup(
     name = "mallory",
     version = "0.0.1",
-    packages = ["mallory"],
+    long_description = "Reverse proxy with SSL verification",
+    url = "https://github.com/braintree/mallory",
     author = "Braintree",
     author_email = "code@braintreepayments.com",
-    url = "https://github.com/braintree/mallory",
     license = "MIT",
-    long_description = "Man-in-the-middle for fun and profit",
+
+    packages = ["mallory"],
+    scripts = ["bin/mallory"],
     install_requires = ["tornado>=2.3"]
 )
