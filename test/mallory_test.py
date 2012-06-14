@@ -114,3 +114,8 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         mallory_server.stop()
 
         self.assertEqual(502, response.code)
+
+    def test_timeout(self):
+        self.http_client.fetch(self.get_url("/timeout"), self.stop, request_timeout=30, ca_certs = "test/ssl/server.crt")
+        response = self.wait(timeout = 55)
+        self.assertEqual(502, response.code)

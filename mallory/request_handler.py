@@ -25,11 +25,14 @@ class RequestHandler(tornado.web.RequestHandler):
 
             http_client = tornado.httpclient.AsyncHTTPClient(io_loop=tornado.ioloop.IOLoop.instance())
             response = yield tornado.gen.Task(http_client.fetch, request)
-
-            self._send_response(response)
+            if response.code == 599:
+                logging.error("request failed with %s" % response.error)
+                self._send_error_response()
+            else:
+                self._send_response(response)
         except Exception as e:
+            logging.exception("Unexpected error: %s" % str(e))
             self._send_error_response()
-            logging.exception("Unexpected error:")
 
     def _build_request(self):
         uri = urlparse.urlunparse([self.proxy_to.scheme, self.proxy_to.netloc, self.request.path, None, self.request.query, None])

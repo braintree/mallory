@@ -1,3 +1,4 @@
+import time
 import tornado
 import tornado.web
 import tornado.gen
@@ -8,6 +9,9 @@ class EchoRequestHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def handle_request(self):
         try:
+            if self.request.path.find("/timeout") == 0:
+                return
+
             message = "PATH: %s\n" % self.request.path
             message += "QUERY STRING: %s\n" % self.request.query
             message += "METHOD: %s\n" % self.request.method
@@ -33,6 +37,6 @@ class EchoRequestHandler(tornado.web.RequestHandler):
             self.finish()
 
         except Exception as e:
-            print "Unexpected error:", e
+            print "Unexpected test harness error:", e
 
     get = post = head = delete = put = handle_request
