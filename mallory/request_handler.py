@@ -27,7 +27,7 @@ class RequestHandler(tornado.web.RequestHandler):
 
             self._send_response(response)
         except Exception as e:
-            logging.exception("Unexpected error:", exception = e)
+            logging.exception("Unexpected error:")
 
     def _build_request(self):
         uri = urlparse.urlunparse([self.proxy_to.scheme, self.proxy_to.netloc, self.request.path, None, self.request.query, None])
@@ -52,7 +52,11 @@ class RequestHandler(tornado.web.RequestHandler):
     def _send_response(self, response):
         message = response.body
         self.set_status(response.code)
-        for header, value in response.headers.iteritems():
+        headers = response.headers.copy()
+        if 'Transfer-Encoding' in headers:
+            del headers['Transfer-Encoding']
+
+        for header, value in headers.iteritems():
             self.set_header(header, value)
         self.write(message)
         self.finish()
