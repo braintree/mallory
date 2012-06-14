@@ -1,4 +1,3 @@
-* logging
 * optparse
 * god
 * exception handling
