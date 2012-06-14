@@ -6,7 +6,7 @@ import re
 class EchoRequestHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
-    def get(self):
+    def handle_request(self):
         try:
             message = "PATH: %s\n" % self.request.path
             message += "QUERY STRING: %s\n" % self.request.query
@@ -23,6 +23,7 @@ class EchoRequestHandler(tornado.web.RequestHandler):
 
             self.set_status(status)
             self.set_header('Content-Length', len(message))
+            self.set_header('X-Requested-Method', self.request.method)
 
             if self.request.path.find("/http_header") == 0:
                 match = re.search("/http_header/(.+)/(.+)", self.request.path)
@@ -34,7 +35,4 @@ class EchoRequestHandler(tornado.web.RequestHandler):
         except Exception as e:
             print "Unexpected error:", e
 
-    @tornado.web.asynchronous
-    @tornado.gen.engine
-    def post(self):
-        self.get()
+    get = post = head = delete = put = handle_request

@@ -36,7 +36,7 @@ class RequestHandler(tornado.web.RequestHandler):
         headers = self.request.headers.copy()
         del headers['Host']
 
-        if self.request.method == "GET":
+        if self.request.method in ["DELETE", "GET", "HEAD"]:
             body = None
         else:
             body = self.request.body
@@ -63,4 +63,4 @@ class RequestHandler(tornado.web.RequestHandler):
         self.write(message)
         self.finish()
 
-    get = post = put = delete = handle_request
+    get = post = put = delete = head = handle_request

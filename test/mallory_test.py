@@ -87,3 +87,19 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.http_client.fetch(self.get_url("/"), self.stop, ca_certs = "test/ssl/server.crt")
         response = self.wait()
         self.assertEqual(socket.gethostname(), response.headers['X-Proxy-Server'])
+
+    def test_put(self):
+        self.http_client.fetch(self.get_url("/"), self.stop, method = "PUT", body = "the put body", ca_certs = "test/ssl/server.crt")
+        response = self.wait()
+        self.assertTrue(response.body.find("METHOD: PUT") >= 0, response.body)
+        self.assertTrue(response.body.find("BODY: the put body") >= 0, response.body)
+
+    def test_delete(self):
+        self.http_client.fetch(self.get_url("/"), self.stop, method = "DELETE", ca_certs = "test/ssl/server.crt")
+        response = self.wait()
+        self.assertTrue(response.body.find("METHOD: DELETE") >= 0, response.body)
+
+    def test_head(self):
+        self.http_client.fetch(self.get_url("/"), self.stop, method = "HEAD", ca_certs = "test/ssl/server.crt")
+        response = self.wait()
+        self.assertEqual("HEAD", response.headers["X-Requested-Method"])
