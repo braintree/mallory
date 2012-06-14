@@ -1,3 +1,4 @@
+import logging
 import tornado
 import tornado.gen
 import tornado.httpserver
@@ -17,6 +18,8 @@ class RequestHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def handle_request(self):
         try:
+            logging.info("proxying request %s to %s" % (self.request.path, self.proxy_to.netloc))
+
             request = self._build_request()
 
             http_client = tornado.httpclient.AsyncHTTPClient(io_loop=tornado.ioloop.IOLoop.instance())
@@ -24,7 +27,7 @@ class RequestHandler(tornado.web.RequestHandler):
 
             self._send_response(response)
         except Exception as e:
-            print "Unexpected error:", e
+            logging.exception("Unexpected error:", exception = e)
 
     def _build_request(self):
         uri = urlparse.urlunparse([self.proxy_to.scheme, self.proxy_to.netloc, self.request.path, None, self.request.query, None])
