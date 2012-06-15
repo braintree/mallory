@@ -20,16 +20,18 @@ class RequestHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def handle_request(self):
         try:
-            logging.info("proxying request %s to %s" % (self.request.path, self.proxy_to.netloc))
+            request_id = self._request_id()
+            logging.info("request %s proxying to %s%s" % (request_id, self.proxy_to.netloc, self.request.path))
 
             request = self._build_request()
 
             http_client = tornado.httpclient.AsyncHTTPClient(io_loop=tornado.ioloop.IOLoop.instance())
             response = yield tornado.gen.Task(http_client.fetch, request)
             if response.code == 599:
-                logging.error("request failed with %s" % response.error)
+                logging.warn("request %s failed with %s" % (request_id, response.error))
                 self._send_error_response()
             else:
+                logging.info("request %s succeeded with %s" % (request_id, response.code))
                 self._send_response(response)
         except Exception as e:
             logging.exception("Unexpected error: %s" % str(e))
@@ -55,6 +57,12 @@ class RequestHandler(tornado.web.RequestHandler):
             body = body
         )
         return request
+
+    def _request_id(self):
+        if 'X-Request-Id' in self.request.headers:
+            return self.request.headers['X-Request-Id']
+        else:
+            return '-'
 
     def _send_error_response(self):
         self.set_status(502)
