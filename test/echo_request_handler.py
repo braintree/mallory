@@ -1,8 +1,10 @@
+import cStringIO
+import gzip
+import re
 import time
 import tornado
-import tornado.web
 import tornado.gen
-import re
+import tornado.web
 
 class EchoRequestHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
@@ -26,17 +28,31 @@ class EchoRequestHandler(tornado.web.RequestHandler):
                 status = 200
 
             self.set_status(status)
-            self.set_header('Content-Length', len(message))
             self.set_header('X-Requested-Method', self.request.method)
 
             if self.request.path.find("/http_header") == 0:
                 match = re.search("/http_header/(.+)/(.+)", self.request.path)
                 self.set_header(match.group(1), match.group(2))
 
-            self.write(message)
+            if self.request.path.find("/gzip") == 0:
+                compressed_message = self._gzip(message)
+                self.set_header('Content-Length', len(compressed_message))
+                self.set_header('Content-Encoding', 'gzip')
+                self.write(compressed_message)
+            else:
+                self.set_header('Content-Length', len(message))
+                self.write(message)
+
             self.finish()
 
         except Exception as e:
             print "Unexpected test harness error:", e
 
     get = post = head = delete = put = handle_request
+
+    def _gzip(self, data):
+        gzip_buffer = cStringIO.StringIO()
+        gzip_file = gzip.GzipFile(mode='wb', fileobj=gzip_buffer)
+        gzip_file.write(data)
+        gzip_file.close()
+        return gzip_buffer.getvalue()

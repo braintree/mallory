@@ -75,10 +75,13 @@ class RequestHandler(tornado.web.RequestHandler):
         headers = response.headers.copy()
         if 'Transfer-Encoding' in headers:
             del headers['Transfer-Encoding']
+        if 'Content-Encoding' in headers:
+            del headers['Content-Encoding']
 
         for header, value in headers.iteritems():
             self.set_header(header, value)
         self.set_header("X-Proxy-Server", socket.gethostname())
+        self.set_header("Content-Length", len(message))
         self.write(message)
         self.finish()
 

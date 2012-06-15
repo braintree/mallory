@@ -120,3 +120,7 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         response = self.wait()
         self.assertEqual(502, response.code)
 
+    def test_gzipped_response(self):
+        self.http_client.fetch(self.get_url("/gzip"), self.stop, request_timeout=3, ca_certs = "test/ssl/server.crt")
+        response = self.wait()
+        self.assertEqual(200, response.code)
