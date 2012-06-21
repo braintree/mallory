@@ -7,32 +7,28 @@ class CircuitBreaker:
     def __init__(self, proxy_to_string):
         proxy_to = urlparse.urlparse(proxy_to_string)
 
-        self.tripped = False
-        self.reset_timer = tornado.ioloop.PeriodicCallback(self.attempt_to_reset, 1)
+        self.history = []
+        self.reset_timer = tornado.ioloop.PeriodicCallback(self._attempt_to_reset, 1)
         self.host = proxy_to.hostname
         self.port = self._determine_port(proxy_to)
 
     def is_tripped(self):
-        return self.tripped
-
-    def reset(self):
-        self.tripped = False
-        self.reset_timer.stop()
-
-    def trip(self):
-        self.tripped = True
-        self.reset_timer.start()
+        return self.history == [False, False, False]
 
     def report_error(self):
-        self.trip()
+        self._record_result(False)
+        if self.is_tripped():
+            self.reset_timer.start()
 
     def report_success(self):
-        self.reset()
+        self._record_result(True)
+        if not self.is_tripped():
+            self.reset_timer.stop()
 
-    def attempt_to_reset(self):
+    def _attempt_to_reset(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         stream = tornado.iostream.IOStream(s)
-        stream.connect((self.host, self.port), self.reset)
+        stream.connect((self.host, self.port), self.report_success)
 
     def _determine_port(self, proxy_to):
         if proxy_to.port:
@@ -42,3 +38,8 @@ class CircuitBreaker:
             return 443
         else:
             return 80
+
+    def _record_result(self, check_successful):
+        self.history.append(check_successful)
+        if len(self.history) > 3:
+            self.history.pop(0)

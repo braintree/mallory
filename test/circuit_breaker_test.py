@@ -42,14 +42,22 @@ class CircuitBreakerTest(tornado.testing.AsyncTestCase):
 
         self.assertEqual(200, response.code)
 
-    def test_circuit_breaker_trips_when_you_cant_connect_to_proxy(self):
+    def test_circuit_breaker_trips_when_you_cant_connect_to_proxy_three_times_in_a_row(self):
         self.client.get("/", self)
         response = self.client.get("/_mallory/heartbeat", self)
+        self.assertEqual(200, response.code)
 
+        self.client.get("/", self)
+        self.client.get("/", self)
+
+        response = self.client.get("/_mallory/heartbeat", self)
         self.assertEqual(503, response.code)
 
     def test_circuit_breaker_resets_if_a_request_succeeds(self):
         self.client.get("/", self)
+        self.client.get("/", self)
+        self.client.get("/", self)
+
         response = self.client.get("/_mallory/heartbeat", self)
         self.assertEqual(503, response.code)
 
@@ -61,6 +69,9 @@ class CircuitBreakerTest(tornado.testing.AsyncTestCase):
 
     def test_circuit_breaker_resets_when_it_can_make_a_tcp_connection_to_the_target(self):
         self.client.get("/", self)
+        self.client.get("/", self)
+        self.client.get("/", self)
+
         response = self.client.get("/_mallory/heartbeat", self)
         self.assertEqual(503, response.code)
 
