@@ -30,12 +30,6 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.echo_http_server.stop()
         self.mallory_server.stop()
 
-    def get_app(self):
-        app = tornado.web.Application([
-            (r"/", mallory.RequestHandler)
-        ])
-        return app
-
     def get_new_ioloop(self):
         return tornado.ioloop.IOLoop.instance()
 

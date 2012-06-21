@@ -11,7 +11,8 @@ import urlparse
 
 class RequestHandler(tornado.web.RequestHandler):
 
-    def initialize(self, proxy_to, ca_file, request_timeout):
+    def initialize(self, circuit_breaker, proxy_to, ca_file, request_timeout):
+        self.circuit_breaker = circuit_breaker
         self.proxy_to = urlparse.urlparse(proxy_to)
         self.ca_file = ca_file
         self.request_timeout = request_timeout
@@ -29,9 +30,11 @@ class RequestHandler(tornado.web.RequestHandler):
             response = yield tornado.gen.Task(http_client.fetch, request)
             if response.code == 599:
                 logging.warn("request %s failed with %s" % (request_id, response.error))
+                self.circuit_breaker.report_error()
                 self._send_error_response()
             else:
                 logging.info("request %s succeeded with %s" % (request_id, response.code))
+                self.circuit_breaker.report_success()
                 self._send_response(response)
         except Exception as e:
             logging.exception("Unexpected error: %s" % str(e))

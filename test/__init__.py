@@ -1,1 +1,2 @@
 from echo_request_handler import EchoRequestHandler
+from mallory_client import MalloryClient
