@@ -20,7 +20,6 @@ class CircuitBreakerTest(tornado.testing.AsyncTestCase):
             (r"/.*", test.EchoRequestHandler)
         ])
         self.echo_http_server = tornado.httpserver.HTTPServer(echo_app, ssl_options =  { "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
-        #self.echo_http_server.listen(10000, address="127.0.0.1")
 
         self.mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10000", ca_file="test/ssl/server.crt", port=10002, request_timeout=0.5,ssl_options={ "certfile": "test/ssl/server.crt", "keyfile": "test/ssl/server.key" })
         self.mallory_server.start()

@@ -1,4 +1,5 @@
 import tornado.web
+import mallory
 
 class HeartbeatHandler(tornado.web.RequestHandler):
     def initialize(self, circuit_breaker):
@@ -13,5 +14,6 @@ class HeartbeatHandler(tornado.web.RequestHandler):
         else:
             self.set_status(200)
 
-        self.write("HI")
+        self.write("Mallory " + mallory.Version + "\n")
+        self.write("OK")
         self.finish()

@@ -1,8 +1,9 @@
 from distutils.core import setup
+import mallory
 
 setup(
     name = "mallory",
-    version = "0.0.1",
+    version = mallory.Version,
     long_description = "Reverse proxy with SSL verification",
     url = "https://github.com/braintree/mallory",
     author = "Braintree",
