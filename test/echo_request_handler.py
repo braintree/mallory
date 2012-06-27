@@ -50,6 +50,9 @@ class EchoRequestHandler(tornado.web.RequestHandler):
 
     get = post = head = delete = put = handle_request
 
+    def _request_summary(self):
+        return "(Echo Handler) %s %s (%s)" % (self.request.method,  self.request.path, self.request.remote_ip)
+
     def _gzip(self, data):
         gzip_buffer = cStringIO.StringIO()
         gzip_file = gzip.GzipFile(mode='wb', fileobj=gzip_buffer)

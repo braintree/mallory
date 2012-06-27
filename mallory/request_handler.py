@@ -67,6 +67,9 @@ class RequestHandler(tornado.web.RequestHandler):
         else:
             return '-'
 
+    def _request_summary(self):
+        return "request %s %s %s (%s)" % (self._request_id(), self.request.method,  self.request.path, self.request.remote_ip)
+
     def _send_error_response(self):
         self.set_status(502)
         self.set_header("X-Proxy-Server", socket.gethostname())

@@ -1,4 +1,7 @@
+import logging
+import logging.handlers
 import socket
+import StringIO
 import sys
 import tornado
 import tornado.gen
@@ -45,6 +48,22 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.http_client.fetch(self.get_url("/the/path/to/hit"), self.stop, ca_certs = "test/ssl/server.crt")
         response = self.wait()
         self.assertTrue(response.body.find("PATH: /the/path/to/hit") >= 0)
+
+    def test_query_string_is_not_logged(self):
+        log_output = StringIO.StringIO()
+        log_handler = logging.StreamHandler(log_output)
+        logging.getLogger().addHandler(logging.StreamHandler(log_output))
+
+        self.http_client.fetch(self.get_url("/path?queryparam=value"), self.stop, ca_certs = "test/ssl/server.crt")
+        response = self.wait()
+
+        logging.getLogger().removeHandler(log_handler)
+
+        self.assertTrue(response.body.find("PATH: /path") >= 0)
+        self.assertTrue(log_output.getvalue().find("GET /path") >= 0)
+        self.assertEqual(False, log_output.getvalue().find("GET /path?") >= 0)
+        self.assertEqual(False, log_output.getvalue().find("GET /path?queryparam=value") >= 0)
+        self.assertEqual(False, log_output.getvalue().find("GET queryparam=value") >= 0)
 
     def test_query_params_are_proxied(self):
         self.http_client.fetch(self.get_url("/path?param1=value1&param2=value2"), self.stop, ca_certs = "test/ssl/server.crt")
