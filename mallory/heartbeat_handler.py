@@ -3,7 +3,6 @@ import mallory
 
 class HeartbeatHandler(tornado.web.RequestHandler):
     def initialize(self, circuit_breaker):
-        print "initializing"
         self.circuit_breaker = circuit_breaker
 
     @tornado.web.asynchronous

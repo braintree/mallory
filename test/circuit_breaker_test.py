@@ -1,3 +1,4 @@
+import datetime
 import socket
 import sys
 import tornado
@@ -81,7 +82,7 @@ class CircuitBreakerTest(tornado.testing.AsyncTestCase):
             self.assertEqual(200, response.code)
             self.stop()
 
-        tornado.ioloop.IOLoop.instance().add_timeout(5, assert_circuit_breaker_reset)
+        tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(milliseconds=1250), assert_circuit_breaker_reset)
         self.wait()
 
     def test_port_defaults_to_80_for_http_urls(self):

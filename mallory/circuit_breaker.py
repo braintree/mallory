@@ -8,7 +8,7 @@ class CircuitBreaker:
         proxy_to = urlparse.urlparse(proxy_to_string)
 
         self.history = []
-        self.reset_timer = tornado.ioloop.PeriodicCallback(self._attempt_to_reset, 1)
+        self.reset_timer = tornado.ioloop.PeriodicCallback(self._attempt_to_reset, 1000)
         self.host = proxy_to.hostname
         self.port = self._determine_port(proxy_to)
 
