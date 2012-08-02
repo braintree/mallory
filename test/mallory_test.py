@@ -132,6 +132,7 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.http_client.fetch(self.get_url("/timeout"), self.stop, request_timeout=3, ca_certs = "test/ssl/server.crt")
         response = self.wait()
         self.assertEqual(502, response.code)
+        self.assertEqual(socket.gethostname(), response.headers['X-Proxy-Server'])
 
     def test_gzipped_response(self):
         self.http_client.fetch(self.get_url("/gzip"), self.stop, request_timeout=3, ca_certs = "test/ssl/server.crt")
