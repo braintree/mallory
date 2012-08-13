@@ -8,5 +8,5 @@ class MalloryClient():
 
     def get(self, path, runner):
         url = 'https://127.0.0.1:%s%s' % (self.port, path)
-        self.http_client.fetch(url, runner.stop, ca_certs = "test/ssl/server.crt")
+        self.http_client.fetch(url, runner.stop, ca_certs = "test/ssl/mallory/server.crt")
         return runner.wait()
