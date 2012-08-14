@@ -11,11 +11,10 @@ import urlparse
 
 class RequestHandler(tornado.web.RequestHandler):
 
-    def initialize(self, circuit_breaker, proxy_to, ca_file, request_timeout):
+    def initialize(self, circuit_breaker, proxy_to, http_request_options):
         self.circuit_breaker = circuit_breaker
         self.proxy_to = urlparse.urlparse(proxy_to)
-        self.ca_file = ca_file
-        self.request_timeout = request_timeout
+        self.http_request_options = http_request_options
 
     @tornado.web.asynchronous
     @tornado.gen.engine
@@ -53,11 +52,10 @@ class RequestHandler(tornado.web.RequestHandler):
 
         request = tornado.httpclient.HTTPRequest(
             uri,
-            request_timeout = self.request_timeout,
-            ca_certs = self.ca_file,
             method = self.request.method,
             headers = headers,
-            body = body
+            body = body,
+            **self.http_request_options
         )
         return request
 

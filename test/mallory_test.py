@@ -18,14 +18,30 @@ class MalloryTest(tornado.testing.AsyncTestCase):
     def setUp(self):
         super(MalloryTest, self).setUp()
         self.client = test.MalloryClient(10001, self)
-
         echo_app = tornado.web.Application([
             (r"/.*", test.EchoRequestHandler)
         ])
-        self.echo_http_server = tornado.httpserver.HTTPServer(echo_app, ssl_options =  { "certfile": "test/ssl/echo_server/server.crt", "keyfile": "test/ssl/echo_server/server.key" })
+
+        self.echo_http_server = tornado.httpserver.HTTPServer(
+         echo_app,
+         ssl_options = {
+             "certfile": "test/ssl/echo_server/server.crt",
+             "keyfile": "test/ssl/echo_server/server.key",
+         }
+        )
         self.echo_http_server.listen(10000, address="127.0.0.1")
 
-        self.mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10000", ca_file="test/ssl/ca/ca.crt", port=10001, request_timeout=0.5,ssl_options={ "certfile": "test/ssl/mallory/server.crt", "keyfile": "test/ssl/mallory/server.key" })
+        http_request_options = {
+            "ca_certs": "test/ssl/ca/ca.crt",
+            "request_timeout": 0.5
+        }
+        ssl_options = {
+            "certfile": "test/ssl/mallory/server.crt",
+            "keyfile": "test/ssl/mallory/server.key"
+        }
+
+        self.mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10000", http_request_options=http_request_options, port=10001, ssl_options=ssl_options)
+
         self.mallory_server.start()
 
     def tearDown(self):
@@ -115,7 +131,11 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.assertEqual("HEAD", response.headers["X-Requested-Method"])
 
     def test_error_handling(self):
-        mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10001", ca_file="test/ssl/badguy.crt", port=10002, request_timeout=5,ssl_options =  { "certfile": "test/ssl/mallory/server.crt", "keyfile": "test/ssl/mallory/server.key" })
+        http_request_options = {
+            "ca_certs": "test/ssl/ca/ca.crt",
+            "request_timeout": 0.5
+        }
+        mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10001", port=10002, http_request_options=http_request_options , ssl_options =  { "certfile": "test/ssl/mallory/server.crt", "keyfile": "test/ssl/mallory/server.key" })
         mallory_server.start()
 
         http_client = tornado.httpclient.AsyncHTTPClient()

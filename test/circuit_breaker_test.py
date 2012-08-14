@@ -20,11 +20,24 @@ class CircuitBreakerTest(tornado.testing.AsyncTestCase):
         echo_app = tornado.web.Application([
             (r"/.*", test.EchoRequestHandler)
         ])
-        self.echo_http_server = tornado.httpserver.HTTPServer(echo_app, ssl_options =  { "certfile": "test/ssl/echo_server/server.crt", "keyfile": "test/ssl/echo_server/server.key" })
+        self.echo_http_server = tornado.httpserver.HTTPServer(
+         echo_app,
+         ssl_options = {
+             "certfile": "test/ssl/echo_server/server.crt",
+             "keyfile": "test/ssl/echo_server/server.key",
+         }
+        )
 
-        self.mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10000", ca_file="test/ssl/ca/ca.crt", port=10002, request_timeout=0.5,ssl_options={ "certfile": "test/ssl/mallory/server.crt", "keyfile": "test/ssl/mallory/server.key" })
+        http_request_options = {
+            "ca_certs": "test/ssl/ca/ca.crt",
+            "request_timeout": 0.5
+        }
+        ssl_options = {
+            "certfile": "test/ssl/mallory/server.crt",
+            "keyfile": "test/ssl/mallory/server.key"
+        }
+        self.mallory_server = mallory.Server(proxy_to="https://127.0.0.1:10000", port=10002, http_request_options=http_request_options, ssl_options=ssl_options)
         self.mallory_server.start()
-        print "started Mallory"
 
     def tearDown(self):
         super(CircuitBreakerTest, self).tearDown()
