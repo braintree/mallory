@@ -5,6 +5,7 @@ setup(
     name = "mallory",
     version = mallory.Version,
     long_description = "Reverse proxy with SSL verification",
+    description = "Reverse proxy with SSL verification",
     url = "https://github.com/braintree/mallory",
     author = "Braintree",
     author_email = "code@braintreepayments.com",
