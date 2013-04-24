@@ -55,6 +55,19 @@ class CircuitBreakerTest(tornado.testing.AsyncTestCase):
 
         self.assertEqual(200, response.code)
 
+    def test_circuit_breaker_response_body_matches_state(self):
+        self.client.get("/", self)
+        response = self.client.get("/_mallory/heartbeat", self)
+        self.assertEqual(200, response.code)
+        self.assertEqual(response.body[-3:], "\nOK")
+
+        self.client.get("/", self)
+        self.client.get("/", self)
+
+        response = self.client.get("/_mallory/heartbeat", self)
+        self.assertEqual(503, response.code)
+        self.assertEqual(response.body[-24:], "\nCircuit Breaker Tripped")
+
     def test_circuit_breaker_trips_when_you_cant_connect_to_proxy_three_times_in_a_row(self):
         self.client.get("/", self)
         response = self.client.get("/_mallory/heartbeat", self)
