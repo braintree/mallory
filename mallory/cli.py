@@ -29,9 +29,13 @@ def start(args):
     http_request_options = {
         "client_cert": options.client_cert,
         "client_key": options.client_key,
-        "ca_certs": options.ca_cert,
         "request_timeout": options.proxy_request_timeout
     }
+
+    if options.ca_cert:
+        http_request_options["ca_certs"] = options.ca_cert
+    else:
+        http_request_options["validate_cert"] = False
 
     server = mallory.Server(
         proxy_to=params[0],
