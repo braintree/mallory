@@ -16,10 +16,11 @@ def start(args):
     parser.add_option("--proxy-request-timeout", dest="proxy_request_timeout", default=20, type="float", help="Proxy timeout in seconds")
     parser.add_option("--client-key", dest="client_key", help="Private key for client certificate")
     parser.add_option("--client-cert", dest="client_cert", help="Certificate for client authentication")
+    parser.add_option("--debug", dest="debug", action="store_true", help="Enable debug logging")
 
     (options, params) = parser.parse_args(args)
 
-    mallory.logs.setup()
+    mallory.logs.setup(options.debug)
 
     ssl_options = {
         "certfile": options.ssl_cert,
@@ -49,6 +50,8 @@ def start(args):
     logging.info("starting mallory on port %s" % options.port)
     server.start()
 
+    if options.debug:
+        tornado.ioloop.IOLoop.instance().set_blocking_log_threshold(1)
     tornado.ioloop.IOLoop.instance().start()
 
 def handle_interrupt(server):
