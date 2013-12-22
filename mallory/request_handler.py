@@ -25,7 +25,7 @@ class RequestHandler(tornado.web.RequestHandler):
 
             request = self._build_request()
 
-            http_client = tornado.httpclient.AsyncHTTPClient(io_loop=tornado.ioloop.IOLoop.instance())
+            http_client = tornado.httpclient.AsyncHTTPClient(io_loop=tornado.ioloop.IOLoop.instance(), force_instance=True)
             response = yield tornado.gen.Task(http_client.fetch, request)
             if response.code == 599:
                 logging.warn("request %s failed with %s" % (request_id, response.error))
