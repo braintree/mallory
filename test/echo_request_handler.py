@@ -48,7 +48,7 @@ class EchoRequestHandler(tornado.web.RequestHandler):
         except Exception as e:
             print "Unexpected test harness error:", e
 
-    get = post = head = delete = put = handle_request
+    get = post = head = delete = put = patch = handle_request
 
     def _request_summary(self):
         return "(Echo Handler) %s %s (%s)" % (self.request.method,  self.request.path, self.request.remote_ip)

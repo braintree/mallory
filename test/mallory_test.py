@@ -118,6 +118,13 @@ class MalloryTest(tornado.testing.AsyncTestCase):
         self.assertTrue(response.body.find("METHOD: PUT") >= 0, response.body)
         self.assertTrue(response.body.find("BODY: the put body") >= 0, response.body)
 
+    def test_patch(self):
+        http_client = tornado.httpclient.AsyncHTTPClient()
+        http_client.fetch(self.get_url("/"), self.stop, method = "PATCH", body = "the patch body", ca_certs = "test/ssl/mallory/server.crt")
+        response = self.wait()
+        self.assertTrue(response.body.find("METHOD: PATCH") >= 0, response.body)
+        self.assertTrue(response.body.find("BODY: the patch body") >= 0, response.body)
+
     def test_delete(self):
         http_client = tornado.httpclient.AsyncHTTPClient()
         http_client.fetch(self.get_url("/"), self.stop, method = "DELETE", ca_certs = "test/ssl/mallory/server.crt")
