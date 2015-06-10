@@ -89,4 +89,4 @@ class RequestHandler(tornado.web.RequestHandler):
         self.write(message)
         self.finish()
 
-    get = post = put = delete = head = handle_request
+    get = post = put = delete = head = patch = handle_request
