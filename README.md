@@ -2,7 +2,13 @@
 
 Reverse proxy for HTTPS services, with SSL verification.
 
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 [![Build Status](https://secure.travis-ci.org/braintree/mallory.png)](http://travis-ci.org/braintree/mallory)
+
+## DEPRECATED
+
+Braintree no longer uses or maintains this project. It remains available for
+research and derivative works, subject to the project's license.
 
 ## Installation
 
